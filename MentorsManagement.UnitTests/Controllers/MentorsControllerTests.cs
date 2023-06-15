@@ -22,7 +22,7 @@ namespace MentorsManagement.UnitTests.Controllers
         }
 
         [Fact]
-        public async Task GetAllMentorsAsync_OnSuccess_ReturnsStatusCode200()
+        public async Task GetAllMentors_OnSuccess_ReturnsStatusCode200()
         {
             // Arrange
             var mentors = _fixture.Create<List<Mentor>>();
@@ -40,7 +40,7 @@ namespace MentorsManagement.UnitTests.Controllers
         }
 
         [Fact]
-        public async Task GetAllMentorsAsync_OnSuccess_InvokesMentorService()
+        public async Task GetAllMentors_OnSuccess_InvokesMentorService()
         {
             // Arrange
             _mockMentorsService
@@ -61,7 +61,7 @@ namespace MentorsManagement.UnitTests.Controllers
         }
 
         [Fact]
-        public async Task GetAllMentorsAsync_OnSuccess_ReturnsListOfMentors()
+        public async Task GetAllMentors_OnSuccess_ReturnsListOfMentors()
         {
             // Arrange
             var mentors = _fixture.Create<List<Mentor>>();
@@ -83,10 +83,8 @@ namespace MentorsManagement.UnitTests.Controllers
 
         }
 
-
-
         [Fact]
-        public async Task GetAllMentorsAsync_OnNoMentorsFound_ReturnsStatusCode404()
+        public async Task GetAllMentors_OnNoMentorsFound_ReturnsStatusCode404()
         {
             // Arrange
             _mockMentorsService
@@ -106,7 +104,7 @@ namespace MentorsManagement.UnitTests.Controllers
         }
 
         [Fact]
-        public async Task GetAllMentorsAsync_OnFailure_ReturnsInternalServerError()
+        public async Task GetAllMentors_OnFailure_ReturnsInternalServerError()
         {
             // Arrange
             _mockMentorsService
