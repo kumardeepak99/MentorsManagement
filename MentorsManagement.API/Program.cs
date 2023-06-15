@@ -1,3 +1,4 @@
+using MentorsManagement.API.DBContexts;
 using MentorsManagement.API.Services;
 using Microsoft.EntityFrameworkCore;
 using StudentManagement.API.DbContexts;
@@ -9,6 +10,8 @@ builder.Services.AddDbContext<MentorDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection")));
 
 builder.Services.AddTransient<IMentorService, MentorService>();
+builder.Services.AddScoped<IMentorDbContext, MentorDbContext>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
