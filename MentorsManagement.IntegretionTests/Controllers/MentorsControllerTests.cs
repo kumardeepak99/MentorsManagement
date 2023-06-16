@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using MentorsManagement.API.Models;
+using MentorsManagement.IntegrationTests.Helpers;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Xunit;
@@ -11,10 +12,13 @@ namespace MentorsManagement.IntegretionTests.Controllers
 
     public class MentorsControllerTests : IClassFixture<WebApplicationFactory<Program>>
     {
+        private readonly WebApplicationFactory<Program> _applicationFactory;
         private readonly HttpClient _client;
-        public MentorsControllerTests(WebApplicationFactory<Program> factory)
+        //WebApplicationFactory<Program> factory
+        public MentorsControllerTests()
         {
-            _client = factory.CreateClient();
+            _applicationFactory = new WebApplicationFactory<Program>();
+            _client=_applicationFactory.CreateClient();
         }
 
         [Fact]
@@ -23,7 +27,7 @@ namespace MentorsManagement.IntegretionTests.Controllers
             // Arrange
 
             // Act
-            var response = await _client.GetAsync("/Mentors/GetAllAsync");
+            var response = await _client.GetAsync(TestClientProvider.Urls.GetAllMentors);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
