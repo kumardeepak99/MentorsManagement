@@ -1,74 +1,148 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using MentorsManagement.API.DBContexts;
 using MentorsManagement.API.Models;
 using MentorsManagement.API.Services;
-using MentorsManagement.UnitTests.Helpers;
 using Microsoft.EntityFrameworkCore;
-using Moq;
+using StudentManagement.API.DbContexts;
 using Xunit;
 
 
 namespace MentorsManagement.UnitTests.Services
 {
-    public class MentorsServiceTests
+
+    public class MentorServiceTests
     {
-        private readonly MentorService _mentorService;
-        private readonly Mock<IMentorDbContext> _mockDbContext;
+        private readonly DbContextOptions<MentorDbContext> _dbContextOptions;
         private readonly Fixture _fixture;
 
-        public MentorsServiceTests()
+        public MentorServiceTests()
         {
-            _mockDbContext = new Mock<IMentorDbContext>();
+            _dbContextOptions = new DbContextOptionsBuilder<MentorDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
             _fixture = new Fixture();
-            _mentorService = new MentorService(_mockDbContext.Object);
+        }
+
+        private MentorDbContext CreateDbContext()
+        {
+            return new MentorDbContext(_dbContextOptions);
         }
 
         [Fact]
         public async Task GetAllMentors_ReturnsListOfMentors()
         {
             // Arrange
-            var mentors = _fixture.CreateMany<Mentor>(2).ToList();
-            var mockDbSet = CreateMockDbSet(mentors);
-            _mockDbContext.Setup(c => c.Mentors).Returns(mockDbSet.Object);
+            using (var dbContext = CreateDbContext())
+            {
+                var mentors = _fixture.CreateMany<Mentor>(2).ToList();
+                dbContext.Mentors.AddRange(mentors);
+                dbContext.SaveChanges();
 
-            // Act
-            var result = await _mentorService.GetAllMentors();
+                var mentorService = new MentorService(dbContext);
 
-            // Assert
-            result.Should().BeEquivalentTo(mentors);
+                // Act
+                var result = await mentorService.GetAllMentors();
+
+                // Assert
+                result.Should().BeEquivalentTo(mentors);
+            }
         }
 
         [Fact]
         public async Task GetAllMentors_ReturnsEmptyList_WhenNoMentorsExist()
         {
             // Arrange
-            var mockDbSet = CreateMockDbSet(new List<Mentor>());
-            _mockDbContext.Setup(c => c.Mentors).Returns(mockDbSet.Object);
+            using (var dbContext = CreateDbContext())
+            {
+                var mentorService = new MentorService(dbContext);
 
-            // Act
-            var result = await _mentorService.GetAllMentors();
+                // Act
+                var result = await mentorService.GetAllMentors();
 
-            // Assert
-            result.Should().BeEmpty();
+                // Assert
+                result.Should().BeEmpty();
+            }
         }
 
-
-        private static Mock<DbSet<TEntity>> CreateMockDbSet<TEntity>(List<TEntity> data) where TEntity : class
+        [Fact]
+        public async Task CreateMentor_AddsMentorToDatabase_ReturnsCreatedMentor()
         {
-            var mockDbSet = new Mock<DbSet<TEntity>>();
-            var queryableData = data.AsQueryable();
+            // Arrange
+            using (var dbContext = CreateDbContext())
+            {
+                var mentor = _fixture.Create<Mentor>();
+                var mentorService = new MentorService(dbContext);
 
-            mockDbSet.As<IQueryable<TEntity>>().Setup(m => m.Provider).Returns(queryableData.Provider);
-            mockDbSet.As<IQueryable<TEntity>>().Setup(m => m.Expression).Returns(queryableData.Expression);
-            mockDbSet.As<IQueryable<TEntity>>().Setup(m => m.ElementType).Returns(queryableData.ElementType);
-            mockDbSet.As<IQueryable<TEntity>>().Setup(m => m.GetEnumerator()).Returns(queryableData.GetEnumerator());
-            mockDbSet.As<IAsyncEnumerable<TEntity>>()
-                .Setup(m => m.GetAsyncEnumerator(It.IsAny<CancellationToken>()))
-                .Returns(new InMemoryAsyncEnumerator<TEntity>(queryableData.GetEnumerator()));
+                // Act
+                var cretatedMentor = await mentorService.CreateMentor(mentor);
 
-            return mockDbSet;
+                // Assert
+                dbContext.Mentors.Should().Contain(mentor);
+                cretatedMentor.Should().BeEquivalentTo(mentor);
+            }
         }
 
+        [Fact]
+        public async Task GetMentorById_ReturnsMentorFromDatabase()
+        {
+            // Arrange
+            using (var dbContext = CreateDbContext())
+            {
+                var mentor = _fixture.Create<Mentor>();
+                dbContext.Mentors.Add(mentor);
+                dbContext.SaveChanges();
+
+                var mentorService = new MentorService(dbContext);
+
+                // Act
+                var result = await mentorService.GetMentorById(mentor.MentorId);
+
+                // Assert
+                result.Should().BeEquivalentTo(mentor);
+            }
+        }
+
+        [Fact]
+        public async Task UpdateMentor_UpdatesMentorInDatabase_ReturnsUpdatedMentor()
+        {
+            // Arrange
+            using (var dbContext = CreateDbContext())
+            {
+                var mentor = _fixture.Create<Mentor>();
+                dbContext.Mentors.Add(mentor);
+                dbContext.SaveChanges();
+
+                var mentorService = new MentorService(dbContext);
+                var updatedMentor = _fixture.Create<Mentor>();
+                updatedMentor.MentorId = mentor.MentorId;
+
+                // Act
+                await mentorService.UpdateMentor(updatedMentor);
+
+                // Assert
+                var result = dbContext.Mentors.Find(mentor.MentorId);
+                result.Should().BeEquivalentTo(updatedMentor);
+            }
+        }
+
+        [Fact]
+        public async Task DeleteMentor_RemovesMentorFromDatabase()
+        {
+            // Arrange
+            using (var dbContext = CreateDbContext())
+            {
+                var mentor = _fixture.Create<Mentor>();
+                dbContext.Mentors.Add(mentor);
+                dbContext.SaveChanges();
+
+                var mentorService = new MentorService(dbContext);
+
+                // Act
+                await mentorService.DeleteMentor(mentor.MentorId);
+
+                // Assert
+                dbContext.Mentors.Should().NotContain(mentor);
+            }
+        }
     }
 }

@@ -20,8 +20,21 @@ namespace MentorsManagement.IntegretionTests.Controllers
             _client=_applicationFactory.CreateClient();
         }
 
+        public async Task<IEnumerable<Mentor>> GetAllMentorsFromDb()
+        {
+            var response = await _client.GetAsync(TestClientProvider.Urls.GetAllMentors);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var mentors = await response.Content.ReadFromJsonAsync<IEnumerable<Mentor>>();
+
+            return mentors!=null ? mentors : new List<Mentor>(); ;
+        }
+
+
         [Fact]
-        public async Task<IEnumerable<Mentor>> GetAllMentors_ReturnsListOfMentors()
+        public async Task GetAllMentors_ListOfMentors_ReturnsListOfMentors()
         {
             // Arrange
 
@@ -36,11 +49,11 @@ namespace MentorsManagement.IntegretionTests.Controllers
             mentors.Should().NotBeNull();
 
             mentors?.Count().Should().BeGreaterThanOrEqualTo(1);
-            return mentors;
+
         }
 
         [Fact]
-        public async Task<Mentor?> GetMentorById_ReturnsMentor()
+        public async Task<Mentor?> GetMentorById_WithExistingMentor_ReturnsMentor()
         {
             // Arrange
             var mentorId = 1; // Provide a valid mentor ID for an existing mentor in db mentor table
@@ -59,21 +72,29 @@ namespace MentorsManagement.IntegretionTests.Controllers
         }
 
         [Fact]
-        public async Task CreateMentor_ReturnsCreatedMentor()
+        public async Task GetMentorById_WithNonExistingMentor_ReturnsNotFoundStatus()
+        {
+            // Arrange
+            var mentorId = 9999; // Provide a non-existing mentor ID
+
+            // Act
+            var response = await _client.GetAsync(TestClientProvider.Urls.GetMentorById + mentorId);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task CreateMentor_CreatesMentorWithMentorData_ReturnsCreatedMentor()
         {
             // Arrange
 
-            //var response = await _client.GetAsync(TestClientProvider.Urls.GetAllMentors);
-            //response.StatusCode.Should().Be(HttpStatusCode.OK);
-            //var mentors = await response.Content.ReadFromJsonAsync<IEnumerable<Mentor>>();
-            //mentors.Should().NotBeNull();
-
-            var mentors = await GetAllMentors_ReturnsListOfMentors();
-            mentors.Should().NotBeNull();
+            var mentors = await GetAllMentorsFromDb();
             int lastMentorId = mentors==null ? 0 : mentors.Last().MentorId;
             lastMentorId++;
             var newMentor = new Fixture().Create<Mentor>();
             newMentor.MentorId=lastMentorId;
+
             // Act
             var createdMentorResponse = await _client.PostAsJsonAsync(TestClientProvider.Urls.CreateMentor, newMentor);
 
@@ -89,7 +110,36 @@ namespace MentorsManagement.IntegretionTests.Controllers
         }
 
         [Fact]
-        public async Task UpdateMentor_ReturnsUpdatedMentor()
+        public async Task CreateMentor_WithDuplicateMentorId_ReturnsConflict()
+        {
+            // Arrange
+            var existingMentorId = 1;
+            var newMentor = new Fixture().Create<Mentor>();
+            newMentor.MentorId = existingMentorId;  // Set the ID to an existing mentor's ID
+
+            // Act
+            var response = await _client.PostAsJsonAsync(TestClientProvider.Urls.CreateMentor, newMentor);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        }
+
+        [Fact]
+        public async Task CreateMentor_WithInvalidMentorData_ReturnsInternalServerError()
+        {
+            // Arrange
+            var newMentor = new Fixture().Create<Mentor>();
+            newMentor.MentorId=0;    // making PK to 0                
+
+            // Act
+            var response = await _client.PostAsJsonAsync(TestClientProvider.Urls.CreateMentor, newMentor);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        }
+
+        [Fact]
+        public async Task UpdateMentor_UpdatesGivenMentorWithData_ReturnsUpdatedMentor()
         {
             // Arrange
             var mentorId = 20; // Provide a valid mentor ID for an existing mentor in db mentor table
@@ -109,7 +159,22 @@ namespace MentorsManagement.IntegretionTests.Controllers
         }
 
         [Fact]
-        public async Task DeleteMentor_ReturnsNoContent()
+        public async Task UpdateMentor_WhenMentorDoesNotExist_ReturnsNotFound()
+        {
+            // Arrange
+            var mentorId = 9999; // Provide a non-existing mentor ID
+            var updatedMentor = new Fixture().Create<Mentor>();
+            updatedMentor.MentorId=mentorId;
+
+            // Act
+            var response = await _client.PutAsJsonAsync(TestClientProvider.Urls.UpdateMentor, updatedMentor);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task DeleteMentor_DeletesMentorWithId_ReturnsNoContent()
         {
             // Arrange
             var mentorId = 22; // Provide a valid mentor ID for an existing mentor in the system
@@ -120,5 +185,19 @@ namespace MentorsManagement.IntegretionTests.Controllers
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
+
+        [Fact]
+        public async Task DeleteMentor_WhenMentorIdDoesNotExist_ReturnsNotFound()
+        {
+            // Arrange
+            var mentorId = 9999; // Provide a non-existing mentor ID
+
+            // Act
+            var response = await _client.DeleteAsync(TestClientProvider.Urls.DeleteMentor + mentorId);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
     }
 }
