@@ -65,25 +65,7 @@ namespace MentorsManagement.UnitTests.Services
         }
 
         [Fact]
-        public async Task CreateMentor_AddsMentorToDatabase_ReturnsCreatedMentor()
-        {
-            // Arrange
-            using (var dbContext = CreateDbContext())
-            {
-                var mentor = _fixture.Create<Mentor>();
-                var mentorService = new MentorService(dbContext);
-
-                // Act
-                var cretatedMentor = await mentorService.CreateMentor(mentor);
-
-                // Assert
-                dbContext.Mentors.Should().Contain(mentor);
-                cretatedMentor.Should().BeEquivalentTo(mentor);
-            }
-        }
-
-        [Fact]
-        public async Task GetMentorById_ReturnsMentorFromDatabase()
+        public async Task GetMentorById_WhenMentorExist_ReturnsMentorFromDatabase()
         {
             // Arrange
             using (var dbContext = CreateDbContext())
@@ -99,6 +81,41 @@ namespace MentorsManagement.UnitTests.Services
 
                 // Assert
                 result.Should().BeEquivalentTo(mentor);
+            }
+        }
+
+        [Fact]
+        public async Task GetMentorById_WhenMentorDoesNotExist_ReturnsNull()
+        {
+            // Arrange
+            using (var dbContext = CreateDbContext())
+            {
+                var mentorId = _fixture.Create<int>();
+                var mentorService = new MentorService(dbContext);
+
+                // Act
+                var result = await mentorService.GetMentorById(mentorId);
+
+                // Assert
+                result.Should().BeNull();
+            }
+        }
+
+        [Fact]
+        public async Task CreateMentor_AddsMentorToDatabase_ReturnsCreatedMentor()
+        {
+            // Arrange
+            using (var dbContext = CreateDbContext())
+            {
+                var mentor = _fixture.Create<Mentor>();
+                var mentorService = new MentorService(dbContext);
+
+                // Act
+                var cretatedMentor = await mentorService.CreateMentor(mentor);
+
+                // Assert
+                dbContext.Mentors.Should().Contain(mentor);
+                cretatedMentor.Should().BeEquivalentTo(mentor);
             }
         }
 
@@ -126,6 +143,23 @@ namespace MentorsManagement.UnitTests.Services
         }
 
         [Fact]
+        public async Task UpdateMentor_WhenMentorDoesNotExist_ReturnsNull()
+        {
+            // Arrange
+            using (var dbContext = CreateDbContext())
+            {
+                var mentor = _fixture.Create<Mentor>();
+                var mentorService = new MentorService(dbContext);
+
+                // Act
+                var result = await mentorService.UpdateMentor(mentor);
+
+                // Assert
+                result.Should().BeNull();
+            }
+        }
+
+        [Fact]
         public async Task DeleteMentor_RemovesMentorFromDatabase()
         {
             // Arrange
@@ -142,6 +176,22 @@ namespace MentorsManagement.UnitTests.Services
 
                 // Assert
                 dbContext.Mentors.Should().NotContain(mentor);
+            }
+        }
+        [Fact]
+        public async Task DeleteMentor_WhenMentorDoesNotExist_ReturnsFalse()
+        {
+            // Arrange
+            using (var dbContext = CreateDbContext())
+            {
+                var mentorId = _fixture.Create<int>();
+                var mentorService = new MentorService(dbContext);
+
+                // Act
+                var result = await mentorService.DeleteMentor(mentorId);
+
+                // Assert
+                result.Should().BeFalse();
             }
         }
     }

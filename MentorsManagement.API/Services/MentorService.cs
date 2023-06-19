@@ -25,7 +25,7 @@ namespace MentorsManagement.API.Services
 
         public async Task<Mentor?> CreateMentor(Mentor mentor)
         {
-            var isMentorExisting= await _context.Mentors.FindAsync(mentor.MentorId);
+            var isMentorExisting = await _context.Mentors.FindAsync(mentor.MentorId);
             if (isMentorExisting != null)
             {
                 return null;

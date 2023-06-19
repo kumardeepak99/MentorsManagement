@@ -129,7 +129,7 @@ namespace MentorsManagement.IntegretionTests.Controllers
         {
             // Arrange
             var newMentor = new Fixture().Create<Mentor>();
-            newMentor.MentorId=0;    // making PK to 0                
+            newMentor.MentorId=-1;    // making PK to 0                
 
             // Act
             var response = await _client.PostAsJsonAsync(TestClientProvider.Urls.CreateMentor, newMentor);
