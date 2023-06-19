@@ -5,16 +5,6 @@ namespace MentorsManagement.IntegrationTests.Helpers
 {
     public class TestClientProvider
     {
-        //const string BaseUrlAddress = "https://localhost:44355";
-        //public HttpClient _client { get; private set; }
-
-        //public TestClientProvider()
-        //{
-        //    var server = new TestServer(new WebHostBuilder().UseStartup<TestStartup>());
-        //    _client = server.CreateClient();
-        //    _client.BaseAddress = new Uri(BaseUrlAddress);
-        //}
-
         public static StringContent GetJsonHttpContent(object items)
         {
             return new StringContent(JsonConvert.SerializeObject(items), Encoding.UTF8, "application/json");
