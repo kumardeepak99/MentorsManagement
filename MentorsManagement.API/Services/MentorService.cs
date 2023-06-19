@@ -1,7 +1,6 @@
 ﻿using MentorsManagement.API.DBContexts;
 using MentorsManagement.API.Models;
 using Microsoft.EntityFrameworkCore;
-using StudentManagement.API.DbContexts;
 
 namespace MentorsManagement.API.Services
 {

@@ -4,7 +4,6 @@ using AutoFixture;
 using FluentAssertions;
 using MentorsManagement.API.Models;
 using MentorsManagement.IntegrationTests.Helpers;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
@@ -15,7 +14,6 @@ namespace MentorsManagement.IntegretionTests.Controllers
     {
         private readonly WebApplicationFactory<Program> _applicationFactory;
         private readonly HttpClient _client;
-        //WebApplicationFactory<Program> factory
         public MentorsControllerTests()
         {
             _applicationFactory = new WebApplicationFactory<Program>();
@@ -114,7 +112,7 @@ namespace MentorsManagement.IntegretionTests.Controllers
         public async Task DeleteMentor_ReturnsNoContent()
         {
             // Arrange
-            var mentorId = 21; // Provide a valid mentor ID for an existing mentor in the system
+            var mentorId = 22; // Provide a valid mentor ID for an existing mentor in the system
 
             // Act
             var response = await _client.DeleteAsync(TestClientProvider.Urls.DeleteMentor+mentorId);

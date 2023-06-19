@@ -1,14 +1,12 @@
 ﻿using System.Text;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
 
 namespace MentorsManagement.IntegrationTests.Helpers
 {
     public class TestClientProvider
     {
-        const string BaseUrlAddress = "https://localhost:44355";
-        public HttpClient _client { get; private set; }
+        //const string BaseUrlAddress = "https://localhost:44355";
+        //public HttpClient _client { get; private set; }
 
         //public TestClientProvider()
         //{
