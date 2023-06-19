@@ -6,5 +6,6 @@ namespace MentorsManagement.API.DBContexts
     public interface IMentorDbContext
     {
         DbSet<Mentor> Mentors { get; set; }
+        Task<int> SaveChangesAsync();
     }
 }

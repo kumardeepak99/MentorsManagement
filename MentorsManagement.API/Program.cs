@@ -14,7 +14,8 @@ public class Program
             options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection")));
 
         builder.Services.AddTransient<IMentorService, MentorService>();
-        builder.Services.AddScoped<IMentorDbContext, MentorDbContext>();
+        builder.Services.AddTransient<IMentorDbContext, MentorDbContext>();
+        builder.Services.AddDbContext<MentorDbContext>();
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

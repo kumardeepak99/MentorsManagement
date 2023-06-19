@@ -16,6 +16,11 @@ namespace StudentManagement.API.DbContexts
 
         public DbSet<Mentor> Mentors { get; set; }
 
+        public async Task<int> SaveChangesAsync()
+        {
+            return await base.SaveChangesAsync();
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Mentor>()

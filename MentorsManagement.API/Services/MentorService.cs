@@ -18,5 +18,41 @@ namespace MentorsManagement.API.Services
         {
             return await _context.Mentors.ToListAsync();
         }
+
+        public async Task<Mentor?> GetMentorById(int id)
+        {
+            return await _context.Mentors.FindAsync(id);
+        }
+
+        public async Task<Mentor> CreateMentor(Mentor mentor)
+        {
+            _context.Mentors.Add(mentor);
+            await _context.SaveChangesAsync();
+            return mentor;
+        }
+
+        public async Task<Mentor?> UpdateMentor(Mentor mentor)
+        {
+            var existingMentor = await _context.Mentors.FindAsync(mentor.MentorId);
+            if (existingMentor == null)
+                return null;
+            existingMentor.FirstName=mentor.FirstName;
+            existingMentor.LastName=mentor.LastName;
+            existingMentor.BirthDay=mentor.BirthDay;
+            existingMentor.Address=mentor.Address;
+            await _context.SaveChangesAsync();
+            return existingMentor;
+        }
+
+        public async Task<bool> DeleteMentor(int id)
+        {
+            var mentor = await _context.Mentors.FindAsync(id);
+            if (mentor == null)
+                return false;
+
+            _context.Mentors.Remove(mentor);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
