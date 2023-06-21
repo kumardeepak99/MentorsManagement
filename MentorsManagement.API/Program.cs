@@ -1,7 +1,7 @@
+using MentorsManagement.API.DbContexts;
 using MentorsManagement.API.DBContexts;
 using MentorsManagement.API.Services;
 using Microsoft.EntityFrameworkCore;
-using StudentManagement.API.DbContexts;
 
 public class Program
 {

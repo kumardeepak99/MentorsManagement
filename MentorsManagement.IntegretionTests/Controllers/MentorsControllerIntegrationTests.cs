@@ -5,14 +5,12 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using StudentManagement.API.DbContexts;
 using Xunit;
-using Newtonsoft.Json;
-using System.Text;
 using MentorsManagement.API.Models;
 using MentorsManagement.IntegrationTests.Helpers;
 using MentorsManagement.IntegretionTests.Helpers;
 using Microsoft.AspNetCore.Mvc.Testing;
+using MentorsManagement.API.DbContexts;
 
 namespace MentorsManagement.IntegretionTests.Controllers
 {
@@ -116,7 +114,7 @@ namespace MentorsManagement.IntegretionTests.Controllers
             var mentors = await GetAllMentorsFromDb();
             int lastMentorId = mentors==null ? 0 : mentors.Last().MentorId;
             lastMentorId++;
-            var newMentor = new Fixture().Create<Mentor>();
+            var newMentor = _fixture.Create<Mentor>();
             newMentor.MentorId=lastMentorId;
 
             // Act
@@ -138,7 +136,7 @@ namespace MentorsManagement.IntegretionTests.Controllers
         {
             // Arrange
             var existingMentorId = 1;
-            var newMentor = new Fixture().Create<Mentor>();
+            var newMentor = _fixture.Create<Mentor>();
             newMentor.MentorId = existingMentorId;  // Set the ID to an existing mentor's ID
 
             // Act
@@ -167,7 +165,7 @@ namespace MentorsManagement.IntegretionTests.Controllers
         {
             // Arrange
             var mentorId = 1; // Provide a valid mentor ID for an existing mentor in db mentor table
-            var updatedMentor = new Fixture().Create<Mentor>();
+            var updatedMentor = _fixture.Create<Mentor>();
             updatedMentor.MentorId=mentorId;
             // Act
             var response = await _client.PutAsJsonAsync(TestClientProvider.Urls.UpdateMentor, updatedMentor);
@@ -187,7 +185,7 @@ namespace MentorsManagement.IntegretionTests.Controllers
         {
             // Arrange
             var mentorId = 9999; // Provide a non-existing mentor ID
-            var updatedMentor = new Fixture().Create<Mentor>();
+            var updatedMentor = _fixture.Create<Mentor>();
             updatedMentor.MentorId=mentorId;
 
             // Act

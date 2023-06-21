@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MentorsManagement.API.DbContexts;
 using MentorsManagement.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using StudentManagement.API.DbContexts;
 
 namespace MentorsManagement.IntegretionTests.Helpers
 {
