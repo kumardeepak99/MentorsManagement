@@ -2,22 +2,46 @@
 using System.Net.Http.Json;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using StudentManagement.API.DbContexts;
+using Xunit;
+using Newtonsoft.Json;
+using System.Text;
 using MentorsManagement.API.Models;
 using MentorsManagement.IntegrationTests.Helpers;
+using MentorsManagement.IntegretionTests.Helpers;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Xunit;
 
 namespace MentorsManagement.IntegretionTests.Controllers
 {
 
-    public class MentorsControllerTests : IClassFixture<WebApplicationFactory<Program>>
+    public class MentorsControllerIntegrationTests
+      : IClassFixture<WebApplicationFactory<Program>>
     {
         private readonly WebApplicationFactory<Program> _applicationFactory;
         private readonly HttpClient _client;
-        public MentorsControllerTests()
+        private readonly Fixture _fixture;
+        private readonly MentorDbContext _dbContext;
+
+        public MentorsControllerIntegrationTests()
         {
-            _applicationFactory = new WebApplicationFactory<Program>();
-            _client=_applicationFactory.CreateClient();
+            _applicationFactory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.ConfigureServices(services =>
+                    {
+                        services.RemoveAll(typeof(DbContext));
+                    });
+                });
+
+            _client = _applicationFactory.CreateClient();
+            _fixture = new Fixture();
+
+            using var scope = _applicationFactory.Services.CreateScope();
+            _dbContext = scope.ServiceProvider.GetRequiredService<MentorDbContext>();
+            TestingDbConfiguration.InitializeDbForTests(_dbContext);
         }
 
         public async Task<IEnumerable<Mentor>> GetAllMentorsFromDb()
@@ -142,7 +166,7 @@ namespace MentorsManagement.IntegretionTests.Controllers
         public async Task UpdateMentor_UpdatesGivenMentorWithData_ReturnsUpdatedMentor()
         {
             // Arrange
-            var mentorId = 20; // Provide a valid mentor ID for an existing mentor in db mentor table
+            var mentorId = 1; // Provide a valid mentor ID for an existing mentor in db mentor table
             var updatedMentor = new Fixture().Create<Mentor>();
             updatedMentor.MentorId=mentorId;
             // Act
@@ -177,7 +201,7 @@ namespace MentorsManagement.IntegretionTests.Controllers
         public async Task DeleteMentor_DeletesMentorWithId_ReturnsNoContent()
         {
             // Arrange
-            var mentorId = 22; // Provide a valid mentor ID for an existing mentor in the system
+            var mentorId = 4; // Provide a valid mentor ID for an existing mentor in the system
 
             // Act
             var response = await _client.DeleteAsync(TestClientProvider.Urls.DeleteMentor+mentorId);

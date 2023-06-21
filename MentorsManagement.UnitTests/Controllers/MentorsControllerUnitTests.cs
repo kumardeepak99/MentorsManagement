@@ -11,12 +11,12 @@ using Xunit;
 namespace MentorsManagement.UnitTests.Controllers
 {
 
-    public class MentorsControllerTests
+    public class MentorsControllerUnitTests
     {
         private Fixture _fixture;
         private Mock<IMentorService> _mockMentorsService;
 
-        public MentorsControllerTests()
+        public MentorsControllerUnitTests()
         {
             _fixture = new Fixture();
             _mockMentorsService = new Mock<IMentorService>();
