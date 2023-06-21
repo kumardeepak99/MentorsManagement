@@ -55,7 +55,15 @@ namespace MentorsManagement.API.Controllers
         {
             try
             {
+                if (mentor.MentorId<=0)
+                {
+                    throw new ArgumentException();
+                }
                 var createdMentor = await _mentorsService.CreateMentor(mentor);
+                if (createdMentor == null)
+                {
+                    return Conflict();
+                }
                 return Ok(createdMentor);
             }
             catch (Exception ex)

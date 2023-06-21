@@ -2,7 +2,7 @@
 using MentorsManagement.API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace StudentManagement.API.DbContexts
+namespace MentorsManagement.API.DbContexts
 {
     public class MentorDbContext : DbContext, IMentorDbContext
     {
