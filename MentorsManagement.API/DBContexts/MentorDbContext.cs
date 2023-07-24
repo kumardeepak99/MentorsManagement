@@ -24,7 +24,7 @@ namespace MentorsManagement.API.DbContexts
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Mentor>()
-                .HasKey(m => m.MentorId);
+                .HasKey(m => m.Id);
             base.OnModelCreating(modelBuilder);
         }
     }

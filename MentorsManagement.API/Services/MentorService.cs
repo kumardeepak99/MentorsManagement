@@ -1,62 +1,60 @@
-﻿using MentorsManagement.API.DBContexts;
+﻿using MentorsManagement.API.Data;
 using MentorsManagement.API.Models;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 
 namespace MentorsManagement.API.Services
 {
     public class MentorService : IMentorService
     {
-        private readonly IMentorDbContext _context;
-
-        public MentorService(IMentorDbContext context)
+        private readonly IMongoCollection<Mentor> _mentors;
+        public MentorService(IMongoDatabase mongoDatabase, IOptions<MongoDbSettings> mongoDbSettings)
         {
-            _context = context;
+            _mentors = mongoDatabase.GetCollection<Mentor>(
+                mongoDbSettings.Value.MentorsCollectionName);
         }
 
         public async Task<List<Mentor>> GetAllMentors()
         {
-            return await _context.Mentors.ToListAsync();
+            var allMentors = await _mentors.Find(_ => true).ToListAsync();
+            return allMentors;
         }
-
-        public async Task<Mentor?> GetMentorById(int id)
+        public async Task<Mentor?> GetMentorById(string id)
         {
-            return await _context.Mentors.FindAsync(id);
+            var mentor = await _mentors.Find(m => m.Id == id).FirstOrDefaultAsync();
+            return mentor;
         }
 
         public async Task<Mentor?> CreateMentor(Mentor mentor)
         {
-            var isMentorExisting = await _context.Mentors.FindAsync(mentor.MentorId);
-            if (isMentorExisting != null)
+            if (mentor.Id != string.Empty)
             {
                 return null;
             }
-            _context.Mentors.Add(mentor);
-            await _context.SaveChangesAsync();
+
+            await _mentors.InsertOneAsync(mentor);
             return mentor;
         }
 
         public async Task<Mentor?> UpdateMentor(Mentor mentor)
         {
-            var existingMentor = await _context.Mentors.FindAsync(mentor.MentorId);
+            var existingMentor = await _mentors.Find(m => m.Id == mentor.Id).FirstOrDefaultAsync();
             if (existingMentor == null)
                 return null;
-            existingMentor.FirstName=mentor.FirstName;
-            existingMentor.LastName=mentor.LastName;
-            existingMentor.BirthDay=mentor.BirthDay;
-            existingMentor.Address=mentor.Address;
-            await _context.SaveChangesAsync();
+
+            existingMentor.FirstName = mentor.FirstName;
+            existingMentor.LastName = mentor.LastName;
+            existingMentor.BirthDay = mentor.BirthDay;
+            existingMentor.Address = mentor.Address;
+
+            await _mentors.ReplaceOneAsync(m => m.Id == mentor.Id, existingMentor);
             return existingMentor;
         }
 
-        public async Task<bool> DeleteMentor(int id)
+        public async Task<bool> DeleteMentor(string id)
         {
-            var mentor = await _context.Mentors.FindAsync(id);
-            if (mentor == null)
-                return false;
-
-            _context.Mentors.Remove(mentor);
-            await _context.SaveChangesAsync();
-            return true;
+            var deleteResult = await _mentors.DeleteOneAsync(m => m.Id == id);
+            return deleteResult.DeletedCount > 0;
         }
     }
 }

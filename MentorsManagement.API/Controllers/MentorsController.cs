@@ -33,7 +33,7 @@ namespace MentorsManagement.API.Controllers
         }
 
         [HttpGet("GetMentorByIdAsync/{id}")]
-        public async Task<IActionResult> GetMentorByIdAsync(int id)
+        public async Task<IActionResult> GetMentorByIdAsync(string id)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace MentorsManagement.API.Controllers
         {
             try
             {
-                if (mentor.MentorId<=0)
+                if (mentor.Id != string.Empty)
                 {
                     throw new ArgumentException();
                 }
@@ -91,7 +91,7 @@ namespace MentorsManagement.API.Controllers
         }
 
         [HttpDelete("DeleteMentorAsync/{id}")]
-        public async Task<IActionResult> DeleteMentorAsync(int id)
+        public async Task<IActionResult> DeleteMentorAsync(string id)
         {
             try
             {
