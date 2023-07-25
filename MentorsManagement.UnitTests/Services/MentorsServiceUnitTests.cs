@@ -22,14 +22,20 @@ namespace MentorsManagement.UnitTests.Services
             _mongoDatabase = mongoClient.GetDatabase(databaseName);
 
             _fixture = new Fixture();
-            _fixture.Customize<Mentor>(c => c.Without(m => m.Id)); // Exclude the Id
+            _fixture.Customize<Mentor>(c => c.Without(m => m.Id));
         }
 
-        // Drop the in-memory database after tests
         public void Dispose()
         {
             _mongoDatabase.Client.DropDatabase(_mongoDatabase.DatabaseNamespace.DatabaseName);
         }
+
+        private MongoDbSettings GetMongoDbSettings() => new MongoDbSettings
+        {
+            ConnectionString = "mongodb+srv://deepakkumarjha:MongoDb2023@cluster0.wgqjg0t.mongodb.net/?retryWrites=true&w=majority",
+            DatabaseName = "MentorsDb",
+            MentorsCollectionName = "mentors",
+        };
 
         [Fact]
         public async Task GetAllMentors_ReturnsListOfMentors()
@@ -38,41 +44,24 @@ namespace MentorsManagement.UnitTests.Services
             var mentorCollection = _mongoDatabase.GetCollection<Mentor>("mentors");
             var mentors = _fixture.CreateMany<Mentor>(2).ToList();
 
-            // Insert the test data into the MongoDB collection
+            // Inserting the test data into the MongoDB collection
             await mentorCollection.InsertManyAsync(mentors);
 
-            // Create an instance of MongoDbSettings with the desired configuration
-            var mongoDbSettings = new MongoDbSettings
-            {
-                ConnectionString = "mongodb+srv://deepakkumarjha:MongoDb2023@cluster0.wgqjg0t.mongodb.net/?retryWrites=true&w=majority",
-                DatabaseName = "MentorsDb",
-                MentorsCollectionName = "mentors",
-            };
-
-            var mentorService = new MentorService(_mongoDatabase, Options.Create(mongoDbSettings));
+            // Create an instance of MentorService with db configuration
+            var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
             var result = await mentorService.GetAllMentors();
 
             // Assert
-            result.Should().BeEquivalentTo(mentors, options => options
-                .Excluding(x => x.BirthDay)); // Exclude BirthDay property from comparison
-
+            result.Should().BeEquivalentTo(mentors, options => options.Excluding(x => x.BirthDay));
         }
-
 
         [Fact]
         public async Task GetAllMentors_ReturnsEmptyList_WhenNoMentorsExist()
         {
             // Arrange
-            var mongoDbSettings = new MongoDbSettings
-            {
-                ConnectionString = "mongodb+srv://deepakkumarjha:MongoDb2023@cluster0.wgqjg0t.mongodb.net/?retryWrites=true&w=majority",
-                DatabaseName = "MentorsDb",
-                MentorsCollectionName = "mentors",
-            };
-
-            var mentorService = new MentorService(_mongoDatabase, Options.Create(mongoDbSettings));
+            var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
             var result = await mentorService.GetAllMentors();
@@ -89,21 +78,14 @@ namespace MentorsManagement.UnitTests.Services
             var mentor = _fixture.Create<Mentor>();
             await mentorCollection.InsertOneAsync(mentor);
 
-            var mongoDbSettings = new MongoDbSettings
-            {
-                ConnectionString = "mongodb+srv://deepakkumarjha:MongoDb2023@cluster0.wgqjg0t.mongodb.net/?retryWrites=true&w=majority",
-                DatabaseName = "MentorsDb",
-                MentorsCollectionName = "mentors",
-            };
-
-            var mentorService = new MentorService(_mongoDatabase, Options.Create(mongoDbSettings));
+            var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
             var result = await mentorService.GetMentorById(mentor.Id);
 
             // Assert
-            result.Should().BeEquivalentTo(mentor, options => options
-                .Excluding(x => x.BirthDay));
+            result.Should().BeEquivalentTo(mentor, options => options.Excluding(x => x.BirthDay));
+
         }
 
         [Fact]
@@ -111,14 +93,7 @@ namespace MentorsManagement.UnitTests.Services
         {
             // Arrange
             var mentorId = ObjectId.GenerateNewId().ToString();
-            var mongoDbSettings = new MongoDbSettings
-            {
-                ConnectionString = "mongodb+srv://deepakkumarjha:MongoDb2023@cluster0.wgqjg0t.mongodb.net/?retryWrites=true&w=majority",
-                DatabaseName = "MentorsDb",
-                MentorsCollectionName = "mentors",
-            };
-
-            var mentorService = new MentorService(_mongoDatabase, Options.Create(mongoDbSettings));
+            var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
             var result = await mentorService.GetMentorById(mentorId);
@@ -127,7 +102,6 @@ namespace MentorsManagement.UnitTests.Services
             result.Should().BeNull();
         }
 
-
         [Fact]
         public async Task CreateMentor_AddsMentorToDatabase_ReturnsCreatedMentor()
         {
@@ -135,22 +109,15 @@ namespace MentorsManagement.UnitTests.Services
             var mentorCollection = _mongoDatabase.GetCollection<Mentor>("mentors");
             var mentor = _fixture.Create<Mentor>();
             mentor.Id = string.Empty;
-            var mongoDbSettings = new MongoDbSettings
-            {
-                ConnectionString = "mongodb+srv://deepakkumarjha:MongoDb2023@cluster0.wgqjg0t.mongodb.net/?retryWrites=true&w=majority",
-                DatabaseName = "MentorsDb",
-                MentorsCollectionName = "mentors",
-            };
-
-            var mentorService = new MentorService(_mongoDatabase, Options.Create(mongoDbSettings));
+            var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
             var createdMentor = await mentorService.CreateMentor(mentor);
 
             // Assert
-            var dbMentor = await mentorCollection.Find(x => x.Id == createdMentor.Id).FirstOrDefaultAsync();
-            dbMentor.Should().BeEquivalentTo(mentor, options => options
-                .Excluding(x => x.BirthDay)); // Exclude BirthDay property from comparison
+            var result = await mentorCollection.Find(x => x.Id == createdMentor.Id).FirstOrDefaultAsync();
+            result.Should().BeEquivalentTo(mentor, options => options.Excluding(x => x.BirthDay));
+
         }
 
         [Fact]
@@ -161,14 +128,7 @@ namespace MentorsManagement.UnitTests.Services
             var mentor = _fixture.Create<Mentor>();
             await mentorCollection.InsertOneAsync(mentor);
 
-            var mongoDbSettings = new MongoDbSettings
-            {
-                ConnectionString = "mongodb+srv://deepakkumarjha:MongoDb2023@cluster0.wgqjg0t.mongodb.net/?retryWrites=true&w=majority",
-                DatabaseName = "MentorsDb",
-                MentorsCollectionName = "mentors",
-            };
-
-            var mentorService = new MentorService(_mongoDatabase, Options.Create(mongoDbSettings));
+            var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             var updatedMentor = _fixture.Create<Mentor>();
             updatedMentor.Id = mentor.Id;
@@ -177,9 +137,9 @@ namespace MentorsManagement.UnitTests.Services
             await mentorService.UpdateMentor(updatedMentor);
 
             // Assert
-            var dbMentor = await mentorCollection.Find(x => x.Id == updatedMentor.Id).FirstOrDefaultAsync();
-            dbMentor.Should().BeEquivalentTo(updatedMentor, options => options
-                .Excluding(x => x.BirthDay));
+            var result = await mentorCollection.Find(x => x.Id == updatedMentor.Id).FirstOrDefaultAsync();
+            result.Should().BeEquivalentTo(updatedMentor, options => options.Excluding(x => x.BirthDay));
+
         }
 
         [Fact]
@@ -190,17 +150,11 @@ namespace MentorsManagement.UnitTests.Services
             var mentor = _fixture.Create<Mentor>();
             await mentorCollection.InsertOneAsync(mentor);
 
-            var mongoDbSettings = new MongoDbSettings
-            {
-                ConnectionString = "mongodb+srv://deepakkumarjha:MongoDb2023@cluster0.wgqjg0t.mongodb.net/?retryWrites=true&w=majority",
-                DatabaseName = "MentorsDb",
-                MentorsCollectionName = "mentors",
-            };
-
-            var mentorService = new MentorService(_mongoDatabase, Options.Create(mongoDbSettings));
+            var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             var updatedMentor = _fixture.Create<Mentor>();
             updatedMentor.Id = ObjectId.GenerateNewId().ToString();
+
             // Act
             var result = await mentorService.UpdateMentor(updatedMentor);
 
@@ -216,14 +170,7 @@ namespace MentorsManagement.UnitTests.Services
             var mentor = _fixture.Create<Mentor>();
             await mentorCollection.InsertOneAsync(mentor);
 
-            var mongoDbSettings = new MongoDbSettings
-            {
-                ConnectionString = "mongodb+srv://deepakkumarjha:MongoDb2023@cluster0.wgqjg0t.mongodb.net/?retryWrites=true&w=majority",
-                DatabaseName = "MentorsDb",
-                MentorsCollectionName = "mentors",
-            };
-
-            var mentorService = new MentorService(_mongoDatabase, Options.Create(mongoDbSettings));
+            var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
             await mentorService.DeleteMentor(mentor.Id);
@@ -237,15 +184,7 @@ namespace MentorsManagement.UnitTests.Services
         public async Task DeleteMentor_WhenMentorDoesNotExist_ReturnsFalse()
         {
             // Arrange
-            var mongoDbSettings = new MongoDbSettings
-            {
-                ConnectionString = "mongodb+srv://deepakkumarjha:MongoDb2023@cluster0.wgqjg0t.mongodb.net/?retryWrites=true&w=majority",
-                DatabaseName = "MentorsDb",
-                MentorsCollectionName = "mentors",
-            };
-
-            var mentorService = new MentorService(_mongoDatabase, Options.Create(mongoDbSettings));
-
+            var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
             var mentorId = ObjectId.GenerateNewId().ToString();
 
             // Act
@@ -254,6 +193,7 @@ namespace MentorsManagement.UnitTests.Services
             // Assert
             result.Should().BeFalse();
         }
-
     }
 }
+
+

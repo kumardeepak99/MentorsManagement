@@ -10,8 +10,7 @@ namespace MentorsManagement.API.Services
         private readonly IMongoCollection<Mentor> _mentors;
         public MentorService(IMongoDatabase mongoDatabase, IOptions<MongoDbSettings> mongoDbSettings)
         {
-            _mentors = mongoDatabase.GetCollection<Mentor>(
-                mongoDbSettings.Value.MentorsCollectionName);
+            _mentors = mongoDatabase.GetCollection<Mentor>(mongoDbSettings.Value.MentorsCollectionName);
         }
 
         public async Task<List<Mentor>> GetAllMentors()
