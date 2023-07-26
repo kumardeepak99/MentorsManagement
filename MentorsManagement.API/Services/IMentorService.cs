@@ -4,10 +4,10 @@ namespace MentorsManagement.API.Services
 {
     public interface IMentorService
     {
-        Task<List<Mentor>> GetAllMentors();
-        Task<Mentor?> GetMentorById(string id);
-        Task<Mentor?> CreateMentor(Mentor mentor);
-        Task<Mentor?> UpdateMentor(Mentor mentor);
-        Task<bool> DeleteMentor(string id);
+        Task<List<Mentor>> GetAllMentorsAsync();
+        Task<Mentor?> GetMentorByIdAsync(string id);
+        Task<Mentor?> CreateMentorAsync(Mentor mentor);
+        Task<Mentor?> UpdateMentorAsync(Mentor mentor);
+        void DeleteMentorAsync(string id);
     }
 }

@@ -19,7 +19,7 @@ namespace MentorsManagement.API.Controllers
         {
             try
             {
-                var mentors = await _mentorsService.GetAllMentors();
+                var mentors = await _mentorsService.GetAllMentorsAsync();
                 if (mentors.Any())
                 {
                     return Ok(mentors);
@@ -37,7 +37,7 @@ namespace MentorsManagement.API.Controllers
         {
             try
             {
-                var mentor = await _mentorsService.GetMentorById(id);
+                var mentor = await _mentorsService.GetMentorByIdAsync(id);
                 if (mentor != null)
                 {
                     return Ok(mentor);
@@ -55,15 +55,11 @@ namespace MentorsManagement.API.Controllers
         {
             try
             {
-                if (mentor.Id != string.Empty)
+                if (!string.IsNullOrEmpty(mentor.Id))
                 {
-                    throw new ArgumentException();
+                    throw new ArgumentNullException(nameof(mentor.Id), "The Mentor ID should not be provided when creating a new Mentor.");
                 }
-                var createdMentor = await _mentorsService.CreateMentor(mentor);
-                if (createdMentor == null)
-                {
-                    return Conflict();
-                }
+                var createdMentor = await _mentorsService.CreateMentorAsync(mentor);
                 return Ok(createdMentor);
             }
             catch (Exception ex)
@@ -77,7 +73,7 @@ namespace MentorsManagement.API.Controllers
         {
             try
             {
-                var updatedMentor = await _mentorsService.UpdateMentor(mentor);
+                var updatedMentor = await _mentorsService.UpdateMentorAsync(mentor);
                 if (updatedMentor != null)
                 {
                     return Ok(updatedMentor);
@@ -95,17 +91,14 @@ namespace MentorsManagement.API.Controllers
         {
             try
             {
-                var deleted = await _mentorsService.DeleteMentor(id);
-                if (deleted)
-                {
-                    return NoContent();
-                }
-                return NotFound();
+                _mentorsService.DeleteMentorAsync(id);
+                return NoContent();
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
+
     }
 }

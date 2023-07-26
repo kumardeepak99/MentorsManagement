@@ -28,7 +28,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentors = _fixture.Create<List<Mentor>>();
-            _mockMentorsService.Setup(service => service.GetAllMentors()).ReturnsAsync(mentors);
+            _mockMentorsService.Setup(service => service.GetAllMentorsAsync()).ReturnsAsync(mentors);
             var sut = CreateMentorsController();
 
             // Act
@@ -45,14 +45,14 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentors = _fixture.Create<List<Mentor>>();
-            _mockMentorsService.Setup(service => service.GetAllMentors()).ReturnsAsync(mentors);
+            _mockMentorsService.Setup(service => service.GetAllMentorsAsync()).ReturnsAsync(mentors);
             var sut = CreateMentorsController();
 
             // Act
             var result = await sut.GetAllMentorsAsync();
 
             // Assert
-            _mockMentorsService.Verify(service => service.GetAllMentors(), Times.Once());
+            _mockMentorsService.Verify(service => service.GetAllMentorsAsync(), Times.Once());
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentors = _fixture.Create<List<Mentor>>();
-            _mockMentorsService.Setup(service => service.GetAllMentors()).ReturnsAsync(mentors);
+            _mockMentorsService.Setup(service => service.GetAllMentorsAsync()).ReturnsAsync(mentors);
             var sut = CreateMentorsController();
 
             // Act
@@ -74,7 +74,7 @@ namespace MentorsManagement.UnitTests.Controllers
         public async Task GetAllMentors_OnNoMentorsFound_ReturnsNotFoundStatusCode()
         {
             // Arrange
-            _mockMentorsService.Setup(service => service.GetAllMentors()).ReturnsAsync(new List<Mentor>());
+            _mockMentorsService.Setup(service => service.GetAllMentorsAsync()).ReturnsAsync(new List<Mentor>());
             var sut = CreateMentorsController();
 
             // Act
@@ -89,7 +89,7 @@ namespace MentorsManagement.UnitTests.Controllers
         public async Task GetAllMentors_OnFailure_ReturnsInternalServerError()
         {
             // Arrange
-            _mockMentorsService.Setup(service => service.GetAllMentors()).ThrowsAsync(new Exception());
+            _mockMentorsService.Setup(service => service.GetAllMentorsAsync()).ThrowsAsync(new Exception());
             var sut = CreateMentorsController();
 
             // Act
@@ -105,7 +105,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentor = _fixture.Create<Mentor>();
-            _mockMentorsService.Setup(service => service.GetMentorById(mentor.Id)).ReturnsAsync(mentor);
+            _mockMentorsService.Setup(service => service.GetMentorByIdAsync(mentor.Id)).ReturnsAsync(mentor);
             var sut = CreateMentorsController();
 
             // Act
@@ -124,7 +124,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentorId = _fixture.Create<string>();
-            _mockMentorsService.Setup(service => service.GetMentorById(mentorId)).ReturnsAsync((Mentor)null);
+            _mockMentorsService.Setup(service => service.GetMentorByIdAsync(mentorId)).ReturnsAsync((Mentor)null);
             var sut = CreateMentorsController();
 
             // Act
@@ -140,7 +140,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentorId = _fixture.Create<string>();
-            _mockMentorsService.Setup(service => service.GetMentorById(mentorId)).ThrowsAsync(new Exception());
+            _mockMentorsService.Setup(service => service.GetMentorByIdAsync(mentorId)).ThrowsAsync(new Exception());
             var sut = CreateMentorsController();
 
             // Act
@@ -157,7 +157,7 @@ namespace MentorsManagement.UnitTests.Controllers
             // Arrange
             var mentor = _fixture.Create<Mentor>();
             mentor.Id = string.Empty;
-            _mockMentorsService.Setup(service => service.CreateMentor(It.IsAny<Mentor>())).ReturnsAsync(mentor);
+            _mockMentorsService.Setup(service => service.CreateMentorAsync(It.IsAny<Mentor>())).ReturnsAsync(mentor);
             var sut = CreateMentorsController();
 
             // Act
@@ -178,14 +178,14 @@ namespace MentorsManagement.UnitTests.Controllers
             // Arrange
             var mentor = _fixture.Create<Mentor>();
             mentor.Id = string.Empty;
-            _mockMentorsService.Setup(service => service.CreateMentor(It.IsAny<Mentor>())).ReturnsAsync(mentor);
+            _mockMentorsService.Setup(service => service.CreateMentorAsync(It.IsAny<Mentor>())).ReturnsAsync(mentor);
             var sut = CreateMentorsController();
 
             // Act
             var result = await sut.CreateMentorAsync(mentor);
 
             // Assert
-            _mockMentorsService.Verify(service => service.CreateMentor(It.IsAny<Mentor>()), Times.Once());
+            _mockMentorsService.Verify(service => service.CreateMentorAsync(It.IsAny<Mentor>()), Times.Once());
         }
 
         [Fact]
@@ -193,7 +193,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentor = _fixture.Create<Mentor>();
-            _mockMentorsService.Setup(service => service.CreateMentor(It.IsAny<Mentor>())).ThrowsAsync(new Exception());
+            _mockMentorsService.Setup(service => service.CreateMentorAsync(It.IsAny<Mentor>())).ThrowsAsync(new Exception());
             var sut = CreateMentorsController();
 
             // Act
@@ -209,7 +209,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentor = _fixture.Create<Mentor>();
-            _mockMentorsService.Setup(service => service.UpdateMentor(mentor)).ReturnsAsync(mentor);
+            _mockMentorsService.Setup(service => service.UpdateMentorAsync(mentor)).ReturnsAsync(mentor);
             var sut = CreateMentorsController();
 
             // Act
@@ -229,14 +229,14 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentor = _fixture.Create<Mentor>();
-            _mockMentorsService.Setup(service => service.UpdateMentor(mentor)).ReturnsAsync(mentor);
+            _mockMentorsService.Setup(service => service.UpdateMentorAsync(mentor)).ReturnsAsync(mentor);
             var sut = CreateMentorsController();
 
             // Act
             var result = await sut.UpdateMentorAsync(mentor);
 
             // Assert
-            _mockMentorsService.Verify(service => service.UpdateMentor(mentor), Times.Once());
+            _mockMentorsService.Verify(service => service.UpdateMentorAsync(mentor), Times.Once());
         }
 
         [Fact]
@@ -244,7 +244,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentor = _fixture.Create<Mentor>();
-            _mockMentorsService.Setup(service => service.UpdateMentor(mentor)).ReturnsAsync((Mentor?)null);
+            _mockMentorsService.Setup(service => service.UpdateMentorAsync(mentor)).ReturnsAsync((Mentor?)null);
             var sut = CreateMentorsController();
 
             // Act
@@ -260,7 +260,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentor = _fixture.Create<Mentor>();
-            _mockMentorsService.Setup(service => service.UpdateMentor(mentor)).ThrowsAsync(new Exception());
+            _mockMentorsService.Setup(service => service.UpdateMentorAsync(mentor)).ThrowsAsync(new Exception());
             var sut = CreateMentorsController();
 
             // Act
@@ -276,7 +276,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentorId = _fixture.Create<string>();
-            _mockMentorsService.Setup(service => service.DeleteMentor(mentorId)).ReturnsAsync(true);
+            _mockMentorsService.Setup(service => service.DeleteMentorAsync(mentorId));
             var sut = CreateMentorsController();
 
             // Act
@@ -292,31 +292,14 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentorId = _fixture.Create<string>();
-            _mockMentorsService.Setup(service => service.DeleteMentor(mentorId)).ReturnsAsync(true);
+            _mockMentorsService.Setup(service => service.DeleteMentorAsync(mentorId));
             var sut = CreateMentorsController();
 
             // Act
             var result = await sut.DeleteMentorAsync(mentorId);
 
             // Assert
-            _mockMentorsService.Verify(service => service.DeleteMentor(mentorId), Times.Once());
-        }
-
-
-        [Fact]
-        public async Task DeleteMentor_WhenMentorDoesNotExist_ReturnsNotFoundStatusCode()
-        {
-            // Arrange
-            var mentorId = _fixture.Create<string>();
-            _mockMentorsService.Setup(service => service.DeleteMentor(mentorId)).ReturnsAsync(false);
-            var sut = CreateMentorsController();
-
-            // Act
-            var result = await sut.DeleteMentorAsync(mentorId);
-
-            // Assert
-            var notFoundResult = result.Should().BeOfType<NotFoundResult>().Subject;
-            notFoundResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+            _mockMentorsService.Verify(service => service.DeleteMentorAsync(mentorId), Times.Once());
         }
 
         [Fact]
@@ -324,7 +307,7 @@ namespace MentorsManagement.UnitTests.Controllers
         {
             // Arrange
             var mentorId = _fixture.Create<string>();
-            _mockMentorsService.Setup(service => service.DeleteMentor(mentorId)).ThrowsAsync(new Exception());
+            _mockMentorsService.Setup(service => service.DeleteMentorAsync(mentorId)).Throws<Exception>();
             var sut = CreateMentorsController();
 
             // Act

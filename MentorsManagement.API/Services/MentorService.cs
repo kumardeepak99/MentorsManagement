@@ -13,47 +13,40 @@ namespace MentorsManagement.API.Services
             _mentors = mongoDatabase.GetCollection<Mentor>(mongoDbSettings.Value.MentorsCollectionName);
         }
 
-        public async Task<List<Mentor>> GetAllMentors()
+        public async Task<List<Mentor>> GetAllMentorsAsync()
         {
-            var allMentors = await _mentors.Find(_ => true).ToListAsync();
-            return allMentors;
+            return await _mentors.Find(_ => true).ToListAsync();
         }
-        public async Task<Mentor?> GetMentorById(string id)
+        public async Task<Mentor?> GetMentorByIdAsync(string id)
         {
-            var mentor = await _mentors.Find(m => m.Id == id).FirstOrDefaultAsync();
-            return mentor;
+            return await _mentors.Find(m => m.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<Mentor?> CreateMentor(Mentor mentor)
+        public async Task<Mentor?> CreateMentorAsync(Mentor mentor)
         {
-            if (mentor.Id != string.Empty)
+            if (!string.IsNullOrEmpty(mentor.Id))
             {
-                return null;
+                throw new ArgumentException("Mentor ID should be null or empty.");
             }
-
             await _mentors.InsertOneAsync(mentor);
             return mentor;
         }
 
-        public async Task<Mentor?> UpdateMentor(Mentor mentor)
+        public async Task<Mentor?> UpdateMentorAsync(Mentor mentor)
         {
             var existingMentor = await _mentors.Find(m => m.Id == mentor.Id).FirstOrDefaultAsync();
             if (existingMentor == null)
-                return null;
-
-            existingMentor.FirstName = mentor.FirstName;
-            existingMentor.LastName = mentor.LastName;
-            existingMentor.BirthDay = mentor.BirthDay;
-            existingMentor.Address = mentor.Address;
-
-            await _mentors.ReplaceOneAsync(m => m.Id == mentor.Id, existingMentor);
-            return existingMentor;
+            {
+                throw new Exception("Mentor not found.");
+            }
+            await _mentors.ReplaceOneAsync(m => m.Id == mentor.Id, mentor);
+            return mentor;
         }
 
-        public async Task<bool> DeleteMentor(string id)
+        public async void DeleteMentorAsync(string id)
         {
-            var deleteResult = await _mentors.DeleteOneAsync(m => m.Id == id);
-            return deleteResult.DeletedCount > 0;
+            await _mentors.DeleteOneAsync(m => m.Id == id);
+
         }
     }
 }

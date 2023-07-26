@@ -51,7 +51,7 @@ namespace MentorsManagement.UnitTests.Services
             var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
-            var result = await mentorService.GetAllMentors();
+            var result = await mentorService.GetAllMentorsAsync();
 
             // Assert
             result.Should().BeEquivalentTo(mentors, options => options.Excluding(x => x.BirthDay));
@@ -64,7 +64,7 @@ namespace MentorsManagement.UnitTests.Services
             var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
-            var result = await mentorService.GetAllMentors();
+            var result = await mentorService.GetAllMentorsAsync();
 
             // Assert
             result.Should().BeEmpty();
@@ -81,7 +81,7 @@ namespace MentorsManagement.UnitTests.Services
             var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
-            var result = await mentorService.GetMentorById(mentor.Id);
+            var result = await mentorService.GetMentorByIdAsync(mentor.Id);
 
             // Assert
             result.Should().BeEquivalentTo(mentor, options => options.Excluding(x => x.BirthDay));
@@ -96,7 +96,7 @@ namespace MentorsManagement.UnitTests.Services
             var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
-            var result = await mentorService.GetMentorById(mentorId);
+            var result = await mentorService.GetMentorByIdAsync(mentorId);
 
             // Assert
             result.Should().BeNull();
@@ -112,7 +112,7 @@ namespace MentorsManagement.UnitTests.Services
             var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
-            var createdMentor = await mentorService.CreateMentor(mentor);
+            var createdMentor = await mentorService.CreateMentorAsync(mentor);
 
             // Assert
             var result = await mentorCollection.Find(x => x.Id == createdMentor.Id).FirstOrDefaultAsync();
@@ -134,7 +134,7 @@ namespace MentorsManagement.UnitTests.Services
             updatedMentor.Id = mentor.Id;
 
             // Act
-            await mentorService.UpdateMentor(updatedMentor);
+            await mentorService.UpdateMentorAsync(updatedMentor);
 
             // Assert
             var result = await mentorCollection.Find(x => x.Id == updatedMentor.Id).FirstOrDefaultAsync();
@@ -143,7 +143,7 @@ namespace MentorsManagement.UnitTests.Services
         }
 
         [Fact]
-        public async Task UpdateMentor_WhenMentorDoesNotExist_ReturnsNull()
+        public async Task UpdateMentor_WhenMentorDoesNotExist_ReturnsException()
         {
             // Arrange
             var mentorCollection = _mongoDatabase.GetCollection<Mentor>("mentors");
@@ -155,11 +155,8 @@ namespace MentorsManagement.UnitTests.Services
             var updatedMentor = _fixture.Create<Mentor>();
             updatedMentor.Id = ObjectId.GenerateNewId().ToString();
 
-            // Act
-            var result = await mentorService.UpdateMentor(updatedMentor);
-
-            // Assert
-            result.Should().BeNull();
+            // Act & Assert
+            await Assert.ThrowsAsync<Exception>(async () => await mentorService.UpdateMentorAsync(updatedMentor));
         }
 
         [Fact]
@@ -173,26 +170,13 @@ namespace MentorsManagement.UnitTests.Services
             var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
 
             // Act
-            await mentorService.DeleteMentor(mentor.Id);
+            mentorService.DeleteMentorAsync(mentor.Id);
 
             // Assert
             var dbMentor = await mentorCollection.Find(x => x.Id == mentor.Id).FirstOrDefaultAsync();
             dbMentor.Should().BeNull();
         }
 
-        [Fact]
-        public async Task DeleteMentor_WhenMentorDoesNotExist_ReturnsFalse()
-        {
-            // Arrange
-            var mentorService = new MentorService(_mongoDatabase, Options.Create(GetMongoDbSettings()));
-            var mentorId = ObjectId.GenerateNewId().ToString();
-
-            // Act
-            var result = await mentorService.DeleteMentor(mentorId);
-
-            // Assert
-            result.Should().BeFalse();
-        }
     }
 }
 

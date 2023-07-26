@@ -1,6 +1,4 @@
 using MentorsManagement.API.Data;
-using MentorsManagement.API.DbContexts;
-using MentorsManagement.API.DBContexts;
 using MentorsManagement.API.Services;
 using MongoDB.Driver;
 
@@ -13,20 +11,13 @@ public class Program
         // Add services to the container.
 
         //Mongo Db config
-        builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
+        var mongoDbSettingsSection = builder.Configuration.GetSection("MongoDbSettings");
+        builder.Services.Configure<MongoDbSettings>(mongoDbSettingsSection);
 
-        MongoDbSettings mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
+        var mongoDbSettings = mongoDbSettingsSection.Get<MongoDbSettings>();
+        builder.Services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(mongoDbSettings?.ConnectionString));
 
-        builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
-        {
-            return new MongoClient(mongoDbSettings?.ConnectionString);
-        });
-
-        builder.Services.AddSingleton<IMongoDatabase>(sp =>
-        {
-            var mongoClient = sp.GetRequiredService<IMongoClient>();
-            return mongoClient.GetDatabase(mongoDbSettings.DatabaseName);
-        });
+        builder.Services.AddSingleton<IMongoDatabase>(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(mongoDbSettings.DatabaseName));
 
         builder.Services.AddTransient<IMentorService, MentorService>();
 
