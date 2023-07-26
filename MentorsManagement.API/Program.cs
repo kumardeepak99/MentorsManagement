@@ -1,7 +1,6 @@
-using MentorsManagement.API.DbContexts;
-using MentorsManagement.API.DBContexts;
+using MentorsManagement.API.Data;
 using MentorsManagement.API.Services;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 public class Program
 {
@@ -10,12 +9,17 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
-        builder.Services.AddDbContext<MentorDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection")));
+
+        //Mongo Db config
+        var mongoDbSettingsSection = builder.Configuration.GetSection("MongoDbSettings");
+        builder.Services.Configure<MongoDbSettings>(mongoDbSettingsSection);
+
+        var mongoDbSettings = mongoDbSettingsSection.Get<MongoDbSettings>();
+        builder.Services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(mongoDbSettings?.ConnectionString));
+
+        builder.Services.AddSingleton<IMongoDatabase>(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(mongoDbSettings.DatabaseName));
 
         builder.Services.AddTransient<IMentorService, MentorService>();
-        builder.Services.AddTransient<IMentorDbContext, MentorDbContext>();
-        builder.Services.AddDbContext<MentorDbContext>();
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

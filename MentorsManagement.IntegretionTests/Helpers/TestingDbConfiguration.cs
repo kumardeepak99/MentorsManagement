@@ -24,10 +24,10 @@ namespace MentorsManagement.IntegretionTests.Helpers
         {
             return new List<Mentor>()
             {
-                new Mentor() { MentorId = 1 ,FirstName = "Deepak", LastName = "Kumar", BirthDay = new DateTime(1999-05-15), Address="45-uppal Hyd"},
-                new Mentor() { MentorId = 2, FirstName = "Naveen", LastName = "Kumar", BirthDay = new DateTime(2002-06-25), Address="8-Hitech City Hyd"},
-                new Mentor() { MentorId = 3, FirstName = "Aashik", LastName = "Villa", BirthDay = new DateTime(2001-04-14), Address="7-Maple Rd AP"},
-                new Mentor() { MentorId = 4, FirstName = "Kuldeep",LastName = "Chauhan", BirthDay = new DateTime(2001-07-10),Address="7-St Indore"},
+                new Mentor() { Id = "1" ,FirstName = "Deepak", LastName = "Kumar", BirthDay = new DateTime(1999-05-15), City="45-uppal Hyd"},
+                new Mentor() { Id = "2", FirstName = "Naveen", LastName = "Kumar", BirthDay = new DateTime(2002-06-25), City="8-Hitech City Hyd"},
+                new Mentor() { Id = "3", FirstName = "Aashik", LastName = "Villa", BirthDay = new DateTime(2001-04-14), City="7-Maple Rd AP"},
+                new Mentor() { Id = "4", FirstName = "Kuldeep",LastName = "Chauhan", BirthDay = new DateTime(2001-07-10),City="7-St Indore"},
 
             };
         }
